@@ -60,6 +60,7 @@ while True:
                     case '0':
                         current_menu = 'main'
                         show_available_operations()
+                        break
         case '0':
             exit(0)
         case 'L' | 'l':
