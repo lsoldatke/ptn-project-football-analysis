@@ -8,22 +8,16 @@ pd.set_option('display.expand_frame_repr', False)
 datasource_directory = './data/'
 players_datasource = datasource_directory + 'players.csv'
 
-current_menu = 'main'
-
 
 def show_available_operations():
     print()
     print("Available operations:")
-
-    match current_menu:
-        case 'main':
-            print("1. Market values")
-            print("0. Exit")
-        case 'market_values':
-            print("1. Descending")
-            print("2. Ascending")
-            print("0. Back")
-
+    print("1d. Sort players by their market value - descending")
+    print("1a. Sort players by their market value - ascending")
+    print("2nm. Filter players by their name")
+    print("2c. Filter players by clubs")
+    print("2nt. Filter players by nationality")
+    print("0. Exit")
     print()
 
 
@@ -41,26 +35,29 @@ while True:
     selection = input("Choose operation (L for list of available operations): ")
 
     match selection:
-        case '1':
-            current_menu = 'market_values'
+        case '1d':
+            print()
+            print(df.sort_values('market_value_in_eur', ascending=False))
             show_available_operations()
-
-            while True:
-                selection = input("Choose operation (L for list of available operations): ")
-
-                match selection:
-                    case '1':
-                        print()
-                        print(df.sort_values('market_value_in_eur', ascending=False))
-                        show_available_operations()
-                    case '2':
-                        print()
-                        print(df.sort_values('market_value_in_eur', ascending=True))
-                        show_available_operations()
-                    case '0':
-                        current_menu = 'main'
-                        show_available_operations()
-                        break
+        case '1a':
+            print()
+            print(df.sort_values('market_value_in_eur', ascending=True))
+            show_available_operations()
+        case '2nm':
+            searched = input("Name: ")
+            print()
+            print(df.loc[df['name'] == searched])
+            show_available_operations()
+        case '2c':
+            searched = input("Club name: ")
+            print()
+            print(df.loc[df['current_club_name'] == searched])
+            show_available_operations()
+        case '2nt':
+            searched = input("Nationality: ")
+            print()
+            print(df.loc[df['country_of_citizenship'] == searched])
+            show_available_operations()
         case '0':
             exit(0)
         case 'L' | 'l':
