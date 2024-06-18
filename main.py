@@ -1,10 +1,16 @@
 import pandas as pd
 import tkinter as tk
+from tkinter import ttk
 
 
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
+
+
+def show_results():
+    clear_window()
+    tk.Label(root, text="Not implemented yet").pack(padx=20, pady=20)
 
 
 # Pandas view configuration
@@ -18,7 +24,28 @@ players_datasource = datasource_directory + 'players.csv'
 root = tk.Tk()
 root.title("Football data analysis project")
 
-tk.Button(root, text="Search", command=clear_window).grid(padx=5, pady=5)
+tk.Label(root, text="Operation:").grid(row=0, column=0)
+operation_combobox = ttk.Combobox(root, values=["Sort", "Filter"])
+operation_combobox.grid(row=0, column=1, padx=10, pady=10)
+operation_combobox.current(0)
+
+tk.Label(root, text="Target:").grid(row=1, column=0)
+target_combobox = ttk.Combobox(root, values=["Players", "Clubs"])
+target_combobox.grid(row=1, column=1, padx=10, pady=10)
+target_combobox.current(0)
+
+tk.Label(root, text="By:").grid(row=2, column=0)
+target_combobox = ttk.Combobox(root, values=["Name"])
+target_combobox.grid(row=2, column=1, padx=10, pady=10)
+target_combobox.current(0)
+
+tk.Label(root, text="Order:").grid(row=3, column=0)
+target_combobox = ttk.Combobox(root, values=["Ascending", "Descending"])
+target_combobox.grid(row=3, column=1, padx=10, pady=10)
+target_combobox.current(0)
+
+tk.Button(root, text="Analyze", command=show_results).grid(row=4, column=0, padx=10, pady=10)
+tk.Button(root, text="Clear window", command=clear_window).grid(row=4, column=1, padx=10, pady=10)
 
 root.mainloop()
 
