@@ -3,14 +3,44 @@ import tkinter as tk
 from tkinter import ttk
 
 
+global results_df
+
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
 
 
 def show_results():
+    results_df = sort(target_combobox.get(), by_combobox.get(), order_combobox.get())
+    print(results_df)
     clear_window()
-    tk.Label(root, text="Not implemented yet").pack(padx=20, pady=20)
+    print(results_df)
+    # print(results_df)
+    match operation_combobox.get():
+        case "Sort":
+            print(results_df)
+            # results_df = sort(target_combobox.get(), by_combobox.get(), order_combobox.get())
+            results_view = ttk.Treeview(root)
+            results_view['columns'] = list(results_df.columns)
+            results_view['show'] = 'headings'
+            for column in results_df.columns:
+                results_view.heading(column, text=column)
+                results_view.column(column, anchor="w")
+            for index, row in results_df.iterrows():
+                results_view.insert("", "end", values=list(row))
+            results_view.pack(expand=True, fill='both')
+
+
+def sort(target, by, order):
+    match target:
+        case "Players":
+            match by:
+                case "Name":
+                    match order:
+                        case "Ascending":
+                            return players_df.sort_values('name', ascending=True)
+                        case "Descending":
+                            return players_df.sort_values('name', ascending=False)
 
 
 def match_options_for_operations(event):
@@ -40,6 +70,8 @@ pd.set_option('display.expand_frame_repr', False)
 # Datasource configuration
 datasource_directory = './data/'
 players_datasource = datasource_directory + 'players.csv'
+
+players_df = pd.read_csv(players_datasource)
 
 root = tk.Tk()
 root.title("Football data analysis project")
