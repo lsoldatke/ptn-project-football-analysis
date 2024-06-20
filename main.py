@@ -55,16 +55,29 @@ def sort(target, by, order):
                             return players_df.sort_values('name', ascending=False)
 
 
-def match_options_for_operations(event):
-    selected_operation = operation_combobox.get()
+def change_widget_visibility(widget, visibility):
+    if visibility and not widget.winfo_viewable():
+        widget.grid(padx=10, pady=10)
+    if not visibility and widget.winfo_viewable():
+        widget.grid_forget()
 
-    match selected_operation:
-        case "Filter":
-            order_label.grid_forget()
-            order_combobox.grid_forget()
-            value_label.grid(row=3, column=0)
-            value_entry.grid(row=3, column=1, padx=10, pady=10)
+
+def update_by_combobox(event):
+    match target_combobox.get():
+        case "Players":
+            by_combobox.config(values=list(players_df.columns))
+        case "Clubs":
+            by_combobox.config(values=list(clubs_df.columns))
+
+
+def update_menu(event):
+    match operation_combobox.get():
         case "Sort":
+            # change_widget_visibility(order_label, True)
+            # change_widget_visibility(order_combobox, True)
+            # change_widget_visibility(value_label, False)
+            # change_widget_visibility(value_entry, False)
+
             if not order_label.winfo_viewable():
                 order_label.grid(row=3, column=0)
             if not order_combobox.winfo_viewable():
@@ -73,6 +86,16 @@ def match_options_for_operations(event):
                 value_label.grid_forget()
             if value_entry.winfo_viewable():
                 value_entry.grid_forget()
+        case "Filter":
+            # change_widget_visibility(order_label, False)
+            # change_widget_visibility(order_combobox, False)
+            # change_widget_visibility(value_label, True)
+            # change_widget_visibility(value_entry, True)
+
+            order_label.grid_forget()
+            order_combobox.grid_forget()
+            value_label.grid(row=3, column=0)
+            value_entry.grid(row=3, column=1, padx=10, pady=10)
 
 
 # Pandas view configuration
@@ -82,8 +105,11 @@ pd.set_option('display.expand_frame_repr', False)
 # Datasource configuration
 datasource_directory = './data/'
 players_datasource = datasource_directory + 'players.csv'
+clubs_datasource = datasource_directory + 'clubs.csv'
 
+# Dataframe initialization
 players_df = pd.read_csv(players_datasource)
+clubs_df = pd.read_csv(clubs_datasource)
 
 root = tk.Tk()
 root.title("Football data analysis project")
@@ -93,18 +119,18 @@ operation_label.grid(row=0, column=0)
 operation_combobox = ttk.Combobox(root, values=["Sort", "Filter"])
 operation_combobox.grid(row=0, column=1, padx=10, pady=10)
 operation_combobox.current(0)
-
-operation_combobox.bind("<<ComboboxSelected>>", match_options_for_operations)
+operation_combobox.bind("<<ComboboxSelected>>", update_menu)
 
 target_label = tk.Label(root, text="Target:")
 target_label.grid(row=1, column=0)
 target_combobox = ttk.Combobox(root, values=["Players", "Clubs"])
 target_combobox.grid(row=1, column=1, padx=10, pady=10)
 target_combobox.current(0)
+target_combobox.bind("<<ComboboxSelected>>", update_by_combobox)
 
 by_label = tk.Label(root, text="By:")
 by_label.grid(row=2, column=0)
-by_combobox = ttk.Combobox(root, values=["Name"])
+by_combobox = ttk.Combobox(root, values=list(players_df.columns))
 by_combobox.grid(row=2, column=1, padx=10, pady=10)
 by_combobox.current(0)
 
