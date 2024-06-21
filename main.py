@@ -3,9 +3,18 @@ import tkinter as tk
 from tkinter import ttk
 
 
+# Utility functions
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
+
+
+def change_widget_visibility(widget, visibility):
+    if visibility and not widget.winfo_viewable() and widget in grid_info:
+        widget.grid(**grid_info[widget])
+    if not visibility and widget.winfo_viewable():
+        grid_info[widget] = widget.grid_info()
+        widget.grid_forget()
 
 
 def show_results():
@@ -43,6 +52,26 @@ def show_results():
     print(results_df)
 
 
+# Combobox change handlers
+def on_operation_combobox_change(event):
+    match operation_combobox.get():
+        case "Sort":
+            change_widget_visibility(order_frame, True)
+            change_widget_visibility(value_frame, False)
+        case "Filter":
+            change_widget_visibility(order_frame, False)
+            change_widget_visibility(value_frame, True)
+
+
+def on_target_combobox_change(event):
+    match target_combobox.get():
+        case "Players":
+            by_combobox.config(values=list(players_df.columns))
+        case "Clubs":
+            by_combobox.config(values=list(clubs_df.columns))
+
+
+# Main functionalities
 def sort(target, by, order):
     match target:
         case "Players":
@@ -53,49 +82,6 @@ def sort(target, by, order):
                             return players_df.sort_values('name', ascending=True)
                         case "Descending":
                             return players_df.sort_values('name', ascending=False)
-
-
-def change_widget_visibility(widget, visibility):
-    if visibility and not widget.winfo_viewable():
-        widget.grid(padx=10, pady=10)
-    if not visibility and widget.winfo_viewable():
-        widget.grid_forget()
-
-
-def update_by_combobox(event):
-    match target_combobox.get():
-        case "Players":
-            by_combobox.config(values=list(players_df.columns))
-        case "Clubs":
-            by_combobox.config(values=list(clubs_df.columns))
-
-
-def update_menu(event):
-    match operation_combobox.get():
-        case "Sort":
-            # change_widget_visibility(order_label, True)
-            # change_widget_visibility(order_combobox, True)
-            # change_widget_visibility(value_label, False)
-            # change_widget_visibility(value_entry, False)
-
-            if not order_label.winfo_viewable():
-                order_label.grid(row=3, column=0)
-            if not order_combobox.winfo_viewable():
-                order_combobox.grid(row=3, column=1, padx=10, pady=10)
-            if value_label.winfo_viewable():
-                value_label.grid_forget()
-            if value_entry.winfo_viewable():
-                value_entry.grid_forget()
-        case "Filter":
-            # change_widget_visibility(order_label, False)
-            # change_widget_visibility(order_combobox, False)
-            # change_widget_visibility(value_label, True)
-            # change_widget_visibility(value_entry, True)
-
-            order_label.grid_forget()
-            order_combobox.grid_forget()
-            value_label.grid(row=3, column=0)
-            value_entry.grid(row=3, column=1, padx=10, pady=10)
 
 
 # Pandas view configuration
@@ -114,51 +100,55 @@ clubs_df = pd.read_csv(clubs_datasource)
 root = tk.Tk()
 root.title("Football data analysis project")
 
-operation_frame = tk.Frame(root)
-operation_frame.pack(pady=5)
-target_frame = tk.Frame(root)
-target_frame.pack(pady=5)
-by_frame = tk.Frame(root)
-by_frame.pack(pady=5)
-order_frame = tk.Frame(root)
-order_frame.pack(pady=5)
-value_frame = tk.Frame(root)
-value_frame.pack(pady=5)
-buttons_frame = tk.Frame(root)
-buttons_frame.pack(pady=5)
+grid_info = {}
+
+menu_frame = tk.Frame(root)
+menu_frame.grid(row=0, column=0, padx=15, pady=15, sticky='w')
+operation_frame = tk.Frame(menu_frame)
+operation_frame.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+target_frame = tk.Frame(menu_frame)
+target_frame.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+by_frame = tk.Frame(menu_frame)
+by_frame.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+value_frame = tk.Frame(menu_frame)
+value_frame.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+order_frame = tk.Frame(menu_frame)
+order_frame.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+buttons_frame = tk.Frame(menu_frame)
+buttons_frame.grid(row=4, column=0, padx=10, pady=10, sticky="w")
 
 operation_label = tk.Label(operation_frame, text="Operation:")
-operation_label.pack(side="left")
+operation_label.grid()
 operation_combobox = ttk.Combobox(operation_frame, values=["Sort", "Filter"])
-operation_combobox.pack(side="left")
+operation_combobox.grid()
 operation_combobox.current(0)
-operation_combobox.bind("<<ComboboxSelected>>", update_menu)
+operation_combobox.bind("<<ComboboxSelected>>", on_operation_combobox_change)
 
 target_label = tk.Label(target_frame, text="Target:")
-target_label.pack(side="left")
+target_label.grid()
 target_combobox = ttk.Combobox(target_frame, values=["Players", "Clubs"])
-target_combobox.pack(side="left")
+target_combobox.grid()
 target_combobox.current(0)
-target_combobox.bind("<<ComboboxSelected>>", update_by_combobox)
+target_combobox.bind("<<ComboboxSelected>>", on_target_combobox_change)
 
 by_label = tk.Label(by_frame, text="By:")
-by_label.pack(side="left")
+by_label.grid()
 by_combobox = ttk.Combobox(by_frame, values=list(players_df.columns))
-by_combobox.pack(side="left")
+by_combobox.grid()
 by_combobox.current(0)
 
+value_label = tk.Label(value_frame, text="Value")
+value_label.grid()
+value_entry = tk.Entry(value_frame)
+value_entry.grid()
+
 order_label = tk.Label(order_frame, text="Order:")
-order_label.pack(side="left")
+order_label.grid()
 order_combobox = ttk.Combobox(order_frame, values=["Ascending", "Descending"])
-order_combobox.pack(side="left")
+order_combobox.grid()
 order_combobox.current(0)
 
-value_label = tk.Label(value_frame, text="Value")
-value_label.pack_forget()
-value_entry = tk.Entry(value_frame)
-value_entry.pack_forget()
-
 analyze_button = tk.Button(buttons_frame, text="Analyze", command=show_results)
-analyze_button.pack(side="left")
+analyze_button.grid()
 
 root.mainloop()
