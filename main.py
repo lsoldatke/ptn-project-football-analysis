@@ -90,6 +90,20 @@ def sort(target, by, order):
     return reorganize_dataframe(sorted_df, by)
 
 
+def filter(target, by, order):
+    df_to_filter = pd.DataFrame()
+
+    match target:
+        case "Players":
+            df_to_filter = players_df
+        case "Clubs":
+            df_to_filter = clubs_df
+
+    filtered_df = df_to_filter.sort_values(by, ascending=True if order == "Ascending" else False)
+
+    return reorganize_dataframe(filtered_df, by)
+
+
 # Pandas view configuration
 pd.set_option('display.max_columns', None)
 pd.set_option('display.expand_frame_repr', False)
