@@ -17,6 +17,12 @@ def change_widget_visibility(widget, visibility):
         widget.grid_forget()
 
 
+def reorganize_dataframe(df, first_col):
+    new_cols = [first_col] + [col for col in df.columns.tolist() if col != first_col]
+
+    return df[new_cols]
+
+
 def show_results():
     operation = operation_combobox.get()
     target = target_combobox.get()
@@ -25,8 +31,8 @@ def show_results():
 
     clear_window()
 
-    frame = ttk.Frame(root)
-    frame.pack(expand=True, fill='both')
+    results_frame = ttk.Frame(root)
+    results_frame.pack(expand=True, fill='both')
 
     results_df = pd.DataFrame()
 
@@ -44,12 +50,10 @@ def show_results():
     for index, row in results_df.iterrows():
         results_view.insert("", "end", values=list(row))
 
-    h_scrollbar = ttk.Scrollbar(frame, orient="horizontal", command=results_view.xview)
+    h_scrollbar = ttk.Scrollbar(results_frame, orient="horizontal", command=results_view.xview)
     h_scrollbar.pack(side="bottom", fill="x")
     results_view.configure(xscrollcommand=h_scrollbar.set)
     results_view.pack(side="top", fill="both", expand=True)
-
-    print(results_df)
 
 
 # Combobox change handlers
@@ -73,15 +77,17 @@ def on_target_combobox_change(event):
 
 # Main functionalities
 def sort(target, by, order):
+    df_to_sort = pd.DataFrame()
+
     match target:
         case "Players":
-            match by:
-                case "Name":
-                    match order:
-                        case "Ascending":
-                            return players_df.sort_values('name', ascending=True)
-                        case "Descending":
-                            return players_df.sort_values('name', ascending=False)
+            df_to_sort = players_df
+        case "Clubs":
+            df_to_sort = clubs_df
+
+    sorted_df = df_to_sort.sort_values(by, ascending=True if order == "Ascending" else False)
+
+    return reorganize_dataframe(sorted_df, by)
 
 
 # Pandas view configuration
