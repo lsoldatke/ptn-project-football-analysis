@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import ttk
 
@@ -28,6 +29,7 @@ def show_results():
     target = target_combobox.get()
     by = by_combobox.get()
     order = order_combobox.get()
+    value = value_entry.get()
 
     clear_window()
 
@@ -38,7 +40,9 @@ def show_results():
 
     match operation:
         case "Sort":
-            results_df = sort(target, by, order)
+            results_df = sort_data(target, by, order)
+        case "Filter":
+            results_df = filter_data(target, by, value)
 
     results_view = ttk.Treeview(root)
     results_view['columns'] = list(results_df.columns)
@@ -76,7 +80,7 @@ def on_target_combobox_change(event):
 
 
 # Main functionalities
-def sort(target, by, order):
+def sort_data(target, by, order):
     df_to_sort = pd.DataFrame()
 
     match target:
@@ -90,7 +94,7 @@ def sort(target, by, order):
     return reorganize_dataframe(sorted_df, by)
 
 
-def filter(target, by, order):
+def filter_data(target, by, value):
     df_to_filter = pd.DataFrame()
 
     match target:
@@ -99,9 +103,28 @@ def filter(target, by, order):
         case "Clubs":
             df_to_filter = clubs_df
 
-    filtered_df = df_to_filter.sort_values(by, ascending=True if order == "Ascending" else False)
+    filtered_df = df_to_filter.loc[df_to_filter[by].str.contains(value, case=False)]
 
     return reorganize_dataframe(filtered_df, by)
+
+
+def create_dependency_chart():
+    merged_df = pd.merge(player_valuations_df, players_df, on='player_id')
+
+    print(merged_df.head())
+    print(merged_df.columns)
+
+    plt.figure(figsize=(10, 6))
+
+    for player_id in merged_df['player_id'].unique():
+        player_data = merged_df[merged_df['player_id'] == player_id]
+        plt.plot(player_data['date'], player_data['market_value_in_eur_x'], marker='o', label=player_data['name'].iloc[0])
+
+    plt.title("Chart of players' values")
+    plt.xlabel("Date")
+    plt.ylabel("Value")
+    plt.legend()
+    plt.show()
 
 
 # Pandas view configuration
@@ -111,10 +134,12 @@ pd.set_option('display.expand_frame_repr', False)
 # Datasource configuration
 datasource_directory = './data/'
 players_datasource = datasource_directory + 'players.csv'
+player_valuations_datasource = datasource_directory + 'player_valuations.csv'
 clubs_datasource = datasource_directory + 'clubs.csv'
 
 # Dataframe initialization
 players_df = pd.read_csv(players_datasource)
+player_valuations_df = pd.read_csv(player_valuations_datasource)
 clubs_df = pd.read_csv(clubs_datasource)
 
 root = tk.Tk()
@@ -170,5 +195,7 @@ order_combobox.current(0)
 
 analyze_button = tk.Button(buttons_frame, text="Analyze", command=show_results)
 analyze_button.grid()
+dependency_chart_button = tk.Button(buttons_frame, text="Values", command=create_dependency_chart)
+dependency_chart_button.grid()
 
 root.mainloop()
