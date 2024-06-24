@@ -5,7 +5,6 @@ import tkinter as tk
 from tkinter import ttk
 
 
-# Utility functions
 def clear_window():
     for widget in root.winfo_children():
         widget.destroy()
@@ -33,7 +32,7 @@ def show_results():
     value = value_entry.get()
 
     if operation == "Plot":
-        plot_players_market_values()
+        plot_player_market_values()
     else:
         clear_window()
 
@@ -48,7 +47,7 @@ def show_results():
             case "Filter":
                 results_df = filter_data(target, by, value)
 
-        results_view = ttk.Treeview(root)
+        results_view = ttk.Treeview(results_frame)
         results_view['columns'] = list(results_df.columns)
         results_view['show'] = 'headings'
 
@@ -60,14 +59,15 @@ def show_results():
 
         h_scrollbar = ttk.Scrollbar(results_frame, orient="horizontal", command=results_view.xview)
         h_scrollbar.pack(side="bottom", fill="x")
-        results_view.configure(xscrollcommand=h_scrollbar.set)
+        v_scrollbar = ttk.Scrollbar(results_frame, orient="vertical", command=results_view.yview)
+        v_scrollbar.pack(side="right", fill="y")
+        results_view.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
         results_view.pack(side="top", fill="both", expand=True)
 
         menu_button = tk.Button(root, text="Back to menu", command=show_main_menu)
-        menu_button.pack()
+        menu_button.pack(padx=10, pady=10)
 
 
-# Combobox change handlers
 def on_operation_combobox_change(event):
     match operation_combobox.get():
         case "Sort":
@@ -79,7 +79,8 @@ def on_operation_combobox_change(event):
         case "Plot":
             change_widget_visibility(order_frame, False)
             change_widget_visibility(value_frame, True)
-            by_combobox.config(values=["player_id / market_value_in_eur"])
+            by_combobox.config(values=["Value / Date"])
+            value_label.config(text="Value (Player ID)")
 
 
 def on_target_combobox_change(event):
@@ -90,7 +91,6 @@ def on_target_combobox_change(event):
             by_combobox.config(values=list(clubs_df.columns))
 
 
-# Main functionalities
 def sort_data(target, by, order):
     df_to_sort = pd.DataFrame()
 
@@ -119,19 +119,19 @@ def filter_data(target, by, value):
     return reorganize_dataframe(filtered_df, by)
 
 
-def plot_players_market_values():
+def plot_player_market_values():
     player_id = int(value_entry.get())
     player_name = players_df.loc[players_df['player_id'] == player_id, 'name'].values[0]
     players_prices = player_valuations_df[player_valuations_df['player_id'] == player_id]
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
     ax.plot(players_prices['date'], players_prices['market_value_in_eur'], marker='o')
-    ax.set_title("Market value changes for player with id: " + str(player_id) + " " + str(player_name))
+    ax.set_title("Market value changes for player with ID: " + str(player_id) + " " + player_name)
     ax.set_xlabel("Date")
     ax.set_ylabel("Value")
     ax.tick_params(axis='x', labelsize=5)
-    ax.grid(True)
+    ax.grid()
 
     clear_window()
 
@@ -140,10 +140,11 @@ def plot_players_market_values():
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
 
     menu_button = tk.Button(root, text="Back to menu", command=show_main_menu)
-    menu_button.pack()
+    menu_button.pack(padx=10, pady=10)
 
 
 def show_main_menu():
+    global grid_info
     global menu_frame, operation_frame, target_frame, by_frame, value_frame, order_frame, buttons_frame
     global operation_label, operation_combobox
     global target_label, target_combobox
@@ -151,7 +152,6 @@ def show_main_menu():
     global value_label, value_entry
     global order_label, order_combobox
     global analyze_button
-    global grid_info
 
     clear_window()
 
@@ -192,7 +192,7 @@ def show_main_menu():
     by_combobox.grid()
     by_combobox.current(0)
 
-    value_label = tk.Label(value_frame, text="Value")
+    value_label = tk.Label(value_frame, text="Value:")
     value_label.grid()
     value_entry = tk.Entry(value_frame)
     value_entry.grid()
