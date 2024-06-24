@@ -8,3 +8,8 @@ Po uruchomieniu pliku main.py wyświetla się menu główne z czterema listami r
  4. Porządek / Wartość - Lista zmienia się w zależności od wybranej operacji
 Po wybraniu interesujących nas opcji klikamy na przycisk Analizuj, po czym zostanie wyświetlony wynik w formie tabeli
 lub wykresu.
+
+Wymagania:
+Program wymaga trzech plików z danymi o piłkarzach, ich wartościach rynkowych oraz klubach.
+Przykładowe dane wymagane do działania tego programu w formacie CSV znajdują się pod adresem:
+https://www.kaggle.com/datasets/davidcariboo/player-scores
