@@ -70,13 +70,13 @@ def show_results():
 
 def on_operation_combobox_change(event):
     match operation_combobox.get():
-        case "Sort":
+        case "Sortowanie":
             change_widget_visibility(order_frame, True)
             change_widget_visibility(value_frame, False)
-        case "Filter":
+        case "Filtrowanie":
             change_widget_visibility(order_frame, False)
             change_widget_visibility(value_frame, True)
-        case "Plot":
+        case "Wykres":
             change_widget_visibility(order_frame, False)
             change_widget_visibility(value_frame, True)
             by_combobox.config(values=["Wartość / Data"])
