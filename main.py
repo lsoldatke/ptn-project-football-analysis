@@ -109,28 +109,23 @@ def filter_data(target, by, value):
     return reorganize_dataframe(filtered_df, by)
 
 
-def create_dependency_chart():
-    merged_df = pd.merge(player_valuations_df, players_df, on='player_id')
-    merged_df = merged_df.drop(columns=['market_value_in_eur_x', 'market_value_in_eur_y'])
+def plot_players_market_values():
+    player_id = 109
+    players_prices = player_valuations_df[player_valuations_df['player_id'] == player_id]
 
-    print(merged_df.head())
-    print(merged_df.columns)
+    fig, ax = plt.subplots(figsize=(10, 5))
 
-    fig = plt.figure(figsize=(10, 6))
+    ax.plot(players_prices['date'], players_prices['market_value_in_eur'], marker='o')
+    ax.set_title("Market value changes for Player with id: " + str(player_id))
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Value")
+    ax.grid(True)
 
-    for player_id in merged_df['player_id'].unique():
-        player_data = merged_df[merged_df['player_id'] == player_id]
-        plt.plot(player_data['date'], player_data['market_value_in_eur'], marker='o', label=player_data['name'].iloc[0])
-
-    plt.title("Chart of players' values")
-    plt.xlabel("Date")
-    plt.ylabel("Value")
-    plt.legend()
-    plt.show()
+    clear_window()
 
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
 
 
 # Pandas view configuration
@@ -201,7 +196,7 @@ order_combobox.current(0)
 
 analyze_button = tk.Button(buttons_frame, text="Analyze", command=show_results)
 analyze_button.grid()
-dependency_chart_button = tk.Button(buttons_frame, text="Values", command=create_dependency_chart)
+dependency_chart_button = tk.Button(buttons_frame, text="Values", command=plot_players_market_values)
 dependency_chart_button.grid()
 
 root.mainloop()
