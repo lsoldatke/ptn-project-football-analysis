@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 from tkinter import ttk
 
@@ -110,21 +111,26 @@ def filter_data(target, by, value):
 
 def create_dependency_chart():
     merged_df = pd.merge(player_valuations_df, players_df, on='player_id')
+    merged_df = merged_df.drop(columns=['market_value_in_eur_x', 'market_value_in_eur_y'])
 
     print(merged_df.head())
     print(merged_df.columns)
 
-    plt.figure(figsize=(10, 6))
+    fig = plt.figure(figsize=(10, 6))
 
     for player_id in merged_df['player_id'].unique():
         player_data = merged_df[merged_df['player_id'] == player_id]
-        plt.plot(player_data['date'], player_data['market_value_in_eur_x'], marker='o', label=player_data['name'].iloc[0])
+        plt.plot(player_data['date'], player_data['market_value_in_eur'], marker='o', label=player_data['name'].iloc[0])
 
     plt.title("Chart of players' values")
     plt.xlabel("Date")
     plt.ylabel("Value")
     plt.legend()
     plt.show()
+
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
 
 # Pandas view configuration
