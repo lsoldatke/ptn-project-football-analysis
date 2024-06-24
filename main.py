@@ -32,33 +32,36 @@ def show_results():
     order = order_combobox.get()
     value = value_entry.get()
 
-    clear_window()
+    if operation == "Plot":
+        plot_players_market_values()
+    else:
+        clear_window()
 
-    results_frame = ttk.Frame(root)
-    results_frame.pack(expand=True, fill='both')
+        results_frame = ttk.Frame(root)
+        results_frame.pack(expand=True, fill='both')
 
-    results_df = pd.DataFrame()
+        results_df = pd.DataFrame()
 
-    match operation:
-        case "Sort":
-            results_df = sort_data(target, by, order)
-        case "Filter":
-            results_df = filter_data(target, by, value)
+        match operation:
+            case "Sort":
+                results_df = sort_data(target, by, order)
+            case "Filter":
+                results_df = filter_data(target, by, value)
 
-    results_view = ttk.Treeview(root)
-    results_view['columns'] = list(results_df.columns)
-    results_view['show'] = 'headings'
+        results_view = ttk.Treeview(root)
+        results_view['columns'] = list(results_df.columns)
+        results_view['show'] = 'headings'
 
-    for column in results_df.columns:
-        results_view.heading(column, text=column)
-        results_view.column(column, anchor="w")
-    for index, row in results_df.iterrows():
-        results_view.insert("", "end", values=list(row))
+        for column in results_df.columns:
+            results_view.heading(column, text=column)
+            results_view.column(column, anchor="w")
+        for index, row in results_df.iterrows():
+            results_view.insert("", "end", values=list(row))
 
-    h_scrollbar = ttk.Scrollbar(results_frame, orient="horizontal", command=results_view.xview)
-    h_scrollbar.pack(side="bottom", fill="x")
-    results_view.configure(xscrollcommand=h_scrollbar.set)
-    results_view.pack(side="top", fill="both", expand=True)
+        h_scrollbar = ttk.Scrollbar(results_frame, orient="horizontal", command=results_view.xview)
+        h_scrollbar.pack(side="bottom", fill="x")
+        results_view.configure(xscrollcommand=h_scrollbar.set)
+        results_view.pack(side="top", fill="both", expand=True)
 
 
 # Combobox change handlers
@@ -70,6 +73,10 @@ def on_operation_combobox_change(event):
         case "Filter":
             change_widget_visibility(order_frame, False)
             change_widget_visibility(value_frame, True)
+        case "Plot":
+            change_widget_visibility(order_frame, False)
+            change_widget_visibility(value_frame, True)
+            by_combobox.config(values=["player_id / market_value_in_eur"])
 
 
 def on_target_combobox_change(event):
@@ -110,15 +117,17 @@ def filter_data(target, by, value):
 
 
 def plot_players_market_values():
-    player_id = 109
+    player_id = int(value_entry.get())
+    player_name = players_df.loc[players_df['player_id'] == player_id, 'name'].values[0]
     players_prices = player_valuations_df[player_valuations_df['player_id'] == player_id]
 
     fig, ax = plt.subplots(figsize=(10, 5))
 
     ax.plot(players_prices['date'], players_prices['market_value_in_eur'], marker='o')
-    ax.set_title("Market value changes for Player with id: " + str(player_id))
+    ax.set_title("Market value changes for player with id: " + str(player_id) + " " + str(player_name))
     ax.set_xlabel("Date")
     ax.set_ylabel("Value")
+    ax.tick_params(axis='x', labelsize=5)
     ax.grid(True)
 
     clear_window()
@@ -126,6 +135,9 @@ def plot_players_market_values():
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
+
+    menu_button = tk.Button(root, text="Back to menu", command=show_results)
+    menu_button.pack()
 
 
 # Pandas view configuration
@@ -165,7 +177,7 @@ buttons_frame.grid(row=4, column=0, padx=10, pady=10, sticky="w")
 
 operation_label = tk.Label(operation_frame, text="Operation:")
 operation_label.grid()
-operation_combobox = ttk.Combobox(operation_frame, values=["Sort", "Filter"])
+operation_combobox = ttk.Combobox(operation_frame, values=["Sort", "Filter", "Plot"])
 operation_combobox.grid()
 operation_combobox.current(0)
 operation_combobox.bind("<<ComboboxSelected>>", on_operation_combobox_change)
@@ -196,7 +208,5 @@ order_combobox.current(0)
 
 analyze_button = tk.Button(buttons_frame, text="Analyze", command=show_results)
 analyze_button.grid()
-dependency_chart_button = tk.Button(buttons_frame, text="Values", command=plot_players_market_values)
-dependency_chart_button.grid()
 
 root.mainloop()
