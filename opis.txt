@@ -1,0 +1,10 @@
+Program ten ma za zadanie ułatwić analizę danych statystycznych związanych z piłką nożną w podstawowym zakresie.
+
+Opis działania:
+Po uruchomieniu pliku main.py wyświetla się menu główne z czterema listami rozwijanymi zawierającymi kolejno:
+ 1. Operacja - Sortowanie, filtrowanie oraz wyświetlanie wykresu
+ 2. Cel analizy - Zawodnicy oraz kluby
+ 3. Według - Kryterium, według którego przeprowadzana będzie wybrana operacja (kolumny w tabeli zawodnicy bądź kluby)
+ 4. Porządek / Wartość - Lista zmienia się w zależności od wybranej operacji
+Po wybraniu interesujących nas opcji klikamy na przycisk Analizuj, po czym zostanie wyświetlony wynik w formie tabeli
+lub wykresu.

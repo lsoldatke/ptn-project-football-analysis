@@ -31,7 +31,7 @@ def show_results():
     order = order_combobox.get()
     value = value_entry.get()
 
-    if operation == "Plot":
+    if operation == "Wykres":
         plot_player_market_values()
     else:
         clear_window()
@@ -42,9 +42,9 @@ def show_results():
         results_df = pd.DataFrame()
 
         match operation:
-            case "Sort":
+            case "Sortowanie":
                 results_df = sort_data(target, by, order)
-            case "Filter":
+            case "Filtrowanie":
                 results_df = filter_data(target, by, value)
 
         results_view = ttk.Treeview(results_frame)
@@ -64,7 +64,7 @@ def show_results():
         results_view.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
         results_view.pack(side="top", fill="both", expand=True)
 
-        menu_button = tk.Button(root, text="Back to menu", command=show_main_menu)
+        menu_button = tk.Button(root, text="Powrót do menu", command=show_main_menu)
         menu_button.pack(padx=10, pady=10)
 
 
@@ -79,15 +79,15 @@ def on_operation_combobox_change(event):
         case "Plot":
             change_widget_visibility(order_frame, False)
             change_widget_visibility(value_frame, True)
-            by_combobox.config(values=["Value / Date"])
-            value_label.config(text="Value (Player ID)")
+            by_combobox.config(values=["Wartość / Data"])
+            value_label.config(text="Wartość (ID zawodnika)")
 
 
 def on_target_combobox_change(event):
     match target_combobox.get():
-        case "Players":
+        case "Zawodnicy":
             by_combobox.config(values=list(players_df.columns))
-        case "Clubs":
+        case "Kluby":
             by_combobox.config(values=list(clubs_df.columns))
 
 
@@ -95,12 +95,12 @@ def sort_data(target, by, order):
     df_to_sort = pd.DataFrame()
 
     match target:
-        case "Players":
+        case "Zawodnicy":
             df_to_sort = players_df
-        case "Clubs":
+        case "Kluby":
             df_to_sort = clubs_df
 
-    sorted_df = df_to_sort.sort_values(by, ascending=True if order == "Ascending" else False)
+    sorted_df = df_to_sort.sort_values(by, ascending=True if order == "Rosnąco" else False)
 
     return reorganize_dataframe(sorted_df, by)
 
@@ -109,9 +109,9 @@ def filter_data(target, by, value):
     df_to_filter = pd.DataFrame()
 
     match target:
-        case "Players":
+        case "Zawodnicy":
             df_to_filter = players_df
-        case "Clubs":
+        case "Kluby":
             df_to_filter = clubs_df
 
     filtered_df = df_to_filter.loc[df_to_filter[by].str.contains(value, case=False)]
@@ -122,14 +122,14 @@ def filter_data(target, by, value):
 def plot_player_market_values():
     player_id = int(value_entry.get())
     player_name = players_df.loc[players_df['player_id'] == player_id, 'name'].values[0]
-    players_prices = player_valuations_df[player_valuations_df['player_id'] == player_id]
+    player_values = player_valuations_df[player_valuations_df['player_id'] == player_id]
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    ax.plot(players_prices['date'], players_prices['market_value_in_eur'], marker='o')
-    ax.set_title("Market value changes for player with ID: " + str(player_id) + " " + player_name)
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Value")
+    ax.plot(player_values['date'], player_values['market_value_in_eur'], marker='o')
+    ax.set_title("Zmiany wartości rynkowej zawodnika z ID: " + str(player_id) + " " + player_name)
+    ax.set_xlabel("Data")
+    ax.set_ylabel("Wartość")
     ax.tick_params(axis='x', labelsize=5)
     ax.grid()
 
@@ -172,58 +172,58 @@ def show_main_menu():
     buttons_frame = tk.Frame(menu_frame)
     buttons_frame.grid(row=4, column=0, padx=10, pady=10, sticky="w")
 
-    operation_label = tk.Label(operation_frame, text="Operation:")
+    operation_label = tk.Label(operation_frame, text="Operacja:")
     operation_label.grid()
-    operation_combobox = ttk.Combobox(operation_frame, values=["Sort", "Filter", "Plot"])
+    operation_combobox = ttk.Combobox(operation_frame, values=["Sortowanie", "Filtrowanie", "Wykres"])
     operation_combobox.grid()
     operation_combobox.current(0)
     operation_combobox.bind("<<ComboboxSelected>>", on_operation_combobox_change)
 
-    target_label = tk.Label(target_frame, text="Target:")
+    target_label = tk.Label(target_frame, text="Cel analizy:")
     target_label.grid()
-    target_combobox = ttk.Combobox(target_frame, values=["Players", "Clubs"])
+    target_combobox = ttk.Combobox(target_frame, values=["Zawodnicy", "Kluby"])
     target_combobox.grid()
     target_combobox.current(0)
     target_combobox.bind("<<ComboboxSelected>>", on_target_combobox_change)
 
-    by_label = tk.Label(by_frame, text="By:")
+    by_label = tk.Label(by_frame, text="Według:")
     by_label.grid()
     by_combobox = ttk.Combobox(by_frame, values=list(players_df.columns))
     by_combobox.grid()
     by_combobox.current(0)
 
-    value_label = tk.Label(value_frame, text="Value:")
+    value_label = tk.Label(value_frame, text="Wartość:")
     value_label.grid()
     value_entry = tk.Entry(value_frame)
     value_entry.grid()
 
-    order_label = tk.Label(order_frame, text="Order:")
+    order_label = tk.Label(order_frame, text="Porządek:")
     order_label.grid()
-    order_combobox = ttk.Combobox(order_frame, values=["Ascending", "Descending"])
+    order_combobox = ttk.Combobox(order_frame, values=["Rosnąco", "Malejąco"])
     order_combobox.grid()
     order_combobox.current(0)
 
-    analyze_button = tk.Button(buttons_frame, text="Analyze", command=show_results)
+    analyze_button = tk.Button(buttons_frame, text="Analizuj", command=show_results)
     analyze_button.grid()
 
 
-# Pandas view configuration
+# Konfiguracja widoku Pandas
 pd.set_option('display.max_columns', None)
 pd.set_option('display.expand_frame_repr', False)
 
-# Datasource configuration
+# Konfiguracja źródła danych
 datasource_directory = './data/'
 players_datasource = datasource_directory + 'players.csv'
 player_valuations_datasource = datasource_directory + 'player_valuations.csv'
 clubs_datasource = datasource_directory + 'clubs.csv'
 
-# Dataframe initialization
+# Inicjalizacja dataframe
 players_df = pd.read_csv(players_datasource)
 player_valuations_df = pd.read_csv(player_valuations_datasource)
 clubs_df = pd.read_csv(clubs_datasource)
 
 root = tk.Tk()
-root.title("Football data analysis project")
+root.title("Projekt do analizy danych piłkarskich")
 
 show_main_menu()
 
