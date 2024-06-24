@@ -63,6 +63,9 @@ def show_results():
         results_view.configure(xscrollcommand=h_scrollbar.set)
         results_view.pack(side="top", fill="both", expand=True)
 
+        menu_button = tk.Button(root, text="Back to menu", command=show_main_menu)
+        menu_button.pack()
+
 
 # Combobox change handlers
 def on_operation_combobox_change(event):
@@ -136,8 +139,72 @@ def plot_players_market_values():
     canvas.draw()
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
 
-    menu_button = tk.Button(root, text="Back to menu", command=show_results)
+    menu_button = tk.Button(root, text="Back to menu", command=show_main_menu)
     menu_button.pack()
+
+
+def show_main_menu():
+    global menu_frame, operation_frame, target_frame, by_frame, value_frame, order_frame, buttons_frame
+    global operation_label, operation_combobox
+    global target_label, target_combobox
+    global by_label, by_combobox
+    global value_label, value_entry
+    global order_label, order_combobox
+    global analyze_button
+    global grid_info
+
+    clear_window()
+
+    grid_info = {}
+
+    menu_frame = tk.Frame(root)
+    menu_frame.grid(row=0, column=0, padx=15, pady=15, sticky='w')
+    operation_frame = tk.Frame(menu_frame)
+    operation_frame.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+    target_frame = tk.Frame(menu_frame)
+    target_frame.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+    by_frame = tk.Frame(menu_frame)
+    by_frame.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+    value_frame = tk.Frame(menu_frame)
+    value_frame.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+    order_frame = tk.Frame(menu_frame)
+    order_frame.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+    buttons_frame = tk.Frame(menu_frame)
+    buttons_frame.grid(row=4, column=0, padx=10, pady=10, sticky="w")
+
+    operation_label = tk.Label(operation_frame, text="Operation:")
+    operation_label.grid()
+    operation_combobox = ttk.Combobox(operation_frame, values=["Sort", "Filter", "Plot"])
+    operation_combobox.grid()
+    operation_combobox.current(0)
+    operation_combobox.bind("<<ComboboxSelected>>", on_operation_combobox_change)
+
+    target_label = tk.Label(target_frame, text="Target:")
+    target_label.grid()
+    target_combobox = ttk.Combobox(target_frame, values=["Players", "Clubs"])
+    target_combobox.grid()
+    target_combobox.current(0)
+    target_combobox.bind("<<ComboboxSelected>>", on_target_combobox_change)
+
+    by_label = tk.Label(by_frame, text="By:")
+    by_label.grid()
+    by_combobox = ttk.Combobox(by_frame, values=list(players_df.columns))
+    by_combobox.grid()
+    by_combobox.current(0)
+
+    value_label = tk.Label(value_frame, text="Value")
+    value_label.grid()
+    value_entry = tk.Entry(value_frame)
+    value_entry.grid()
+
+    order_label = tk.Label(order_frame, text="Order:")
+    order_label.grid()
+    order_combobox = ttk.Combobox(order_frame, values=["Ascending", "Descending"])
+    order_combobox.grid()
+    order_combobox.current(0)
+
+    analyze_button = tk.Button(buttons_frame, text="Analyze", command=show_results)
+    analyze_button.grid()
 
 
 # Pandas view configuration
@@ -158,55 +225,6 @@ clubs_df = pd.read_csv(clubs_datasource)
 root = tk.Tk()
 root.title("Football data analysis project")
 
-grid_info = {}
-
-menu_frame = tk.Frame(root)
-menu_frame.grid(row=0, column=0, padx=15, pady=15, sticky='w')
-operation_frame = tk.Frame(menu_frame)
-operation_frame.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-target_frame = tk.Frame(menu_frame)
-target_frame.grid(row=1, column=0, padx=10, pady=10, sticky="w")
-by_frame = tk.Frame(menu_frame)
-by_frame.grid(row=2, column=0, padx=10, pady=10, sticky="w")
-value_frame = tk.Frame(menu_frame)
-value_frame.grid(row=3, column=0, padx=10, pady=10, sticky="w")
-order_frame = tk.Frame(menu_frame)
-order_frame.grid(row=3, column=0, padx=10, pady=10, sticky="w")
-buttons_frame = tk.Frame(menu_frame)
-buttons_frame.grid(row=4, column=0, padx=10, pady=10, sticky="w")
-
-operation_label = tk.Label(operation_frame, text="Operation:")
-operation_label.grid()
-operation_combobox = ttk.Combobox(operation_frame, values=["Sort", "Filter", "Plot"])
-operation_combobox.grid()
-operation_combobox.current(0)
-operation_combobox.bind("<<ComboboxSelected>>", on_operation_combobox_change)
-
-target_label = tk.Label(target_frame, text="Target:")
-target_label.grid()
-target_combobox = ttk.Combobox(target_frame, values=["Players", "Clubs"])
-target_combobox.grid()
-target_combobox.current(0)
-target_combobox.bind("<<ComboboxSelected>>", on_target_combobox_change)
-
-by_label = tk.Label(by_frame, text="By:")
-by_label.grid()
-by_combobox = ttk.Combobox(by_frame, values=list(players_df.columns))
-by_combobox.grid()
-by_combobox.current(0)
-
-value_label = tk.Label(value_frame, text="Value")
-value_label.grid()
-value_entry = tk.Entry(value_frame)
-value_entry.grid()
-
-order_label = tk.Label(order_frame, text="Order:")
-order_label.grid()
-order_combobox = ttk.Combobox(order_frame, values=["Ascending", "Descending"])
-order_combobox.grid()
-order_combobox.current(0)
-
-analyze_button = tk.Button(buttons_frame, text="Analyze", command=show_results)
-analyze_button.grid()
+show_main_menu()
 
 root.mainloop()
