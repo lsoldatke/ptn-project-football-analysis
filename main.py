@@ -139,7 +139,7 @@ def plot_player_market_values():
     canvas.draw()
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=1)
 
-    menu_button = tk.Button(root, text="Back to menu", command=show_main_menu)
+    menu_button = tk.Button(root, text="Powrót do menu", command=show_main_menu)
     menu_button.pack(padx=10, pady=10)
 
 
